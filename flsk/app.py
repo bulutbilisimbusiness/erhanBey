@@ -20,7 +20,7 @@ def hello() -> str:
 def excel() -> str:
 
     df = pd.read_excel('data/TimeReport_TEAM.xlsx', index_col=False)
-
+    
     izinler = pd.read_excel('data/Ağustos izin.XLSX')
 
     resmi_tatil = pd.read_excel('data/resmi_tatil_2021.xlsx', index_col=False)
@@ -28,7 +28,7 @@ def excel() -> str:
     
     df.to_excel('data/modified.xlsx', columns=['Tarih', 'Çalışan Adı', 'Giriş Saati', 'Çıkış Saati','Çalışılan Saatler'], index=False)
     df = pd.read_excel('data/modified.xlsx', index_col=False)
-
+    
     # Aynı tarihte bir çalışan iki kere giriş ve çıkış yapmış.
     veri = df.duplicated(['Tarih', 'Çalışan Adı'])
     if [veri == 'True']:
@@ -55,17 +55,18 @@ def excel() -> str:
     df['Giriş Saati'] = pd.to_datetime(df['Giriş Saati']).dt.strftime('%H:%M:%S')
     df['Çıkış Saati'] = pd.to_datetime(df['Çıkış Saati']).dt.strftime('%H:%M:%S')
 
+
     # Giriş saati 09:00 olanlara rastgele değer atama
     df.loc[df['Giriş Saati'] == '09:00:00', 'Giriş Saati'] = df.apply(lambda row : random_giris_saati_ekle(), axis = 1)
-
+    
     # Çıkış saati 18:00 olanlara rastgele değer atama
     df.loc[df['Çıkış Saati'] == '18:00:00', 'Çıkış Saati'] = df.apply(lambda row : random_cikis_saati_ekle(), axis = 1)
-
+    
     calisilan_saat_hesapla(df)
 
     df['Çıkış Saati'] =np.where((df['Çalışılan Saatler'] < 8.75) & (df['Giriş Saati'] < '08:30:00'), df.apply(lambda row : random_cikis_saati_ekle(),axis = 1), df['Çıkış Saati'])
     df.loc[df['Çalışılan Saatler'] > 11, 'Çıkış Saati'] = df.apply(lambda row: random_cikis_saati_ekle(), axis=1)
-
+    
     calisilan_saat_hesapla(df)
 
     # Giriş Yapmayan Personel Var Mı?
@@ -161,9 +162,9 @@ def excel() -> str:
 
     all_data.loc[all_data['İzin Türü'] == 'Rapor', 'Giriş Saati'] = '09:00:00'
     all_data.loc[all_data['İzin Türü'] == 'Rapor', 'Çıkış Saati'] = '18:00:00'
-
+    
     calisilan_saat_hesapla(all_data)
-
+    
     # Bir yılı dolmamış kişiler yıllık izin kullandıysa dahil etme
     all_data['Tarih'] = pd.to_datetime(all_data['Tarih'])
     all_data['İşe Başlama Tarihi'] = pd.to_datetime(all_data['İşe Başlama Tarihi'])
@@ -197,7 +198,7 @@ def excel() -> str:
     veri1['İzin Türü'] = np.nan
 
     all_data = all_data.append(veri1, ignore_index=False)
-
+    
     veri2 = all_data.loc[(all_data['İzin Türü'] == 'Yarım Gün İzin') & (all_data['Giriş Saati'] >= '13:00:00')]
     veri2['Çıkış Saati'] = veri2['Giriş Saati']
     veri2['Giriş Saati'] = veri2['Çıkış Saati'] - pd.to_timedelta('04:30:00')
@@ -233,7 +234,8 @@ def excel() -> str:
         pivot_tbl.to_excel(writer, sheet_name='Pivot_tablo')
     
     #return_df = pd.read_excel('data/modified.xlsx', index_col=False)
-    return_df = pd.read_excel('data/Ar-Ge Personelleri.xlsx', index_col=False)
+    #return_df = pd.read_excel('data/Ar-Ge Personelleri.xlsx', index_col=False)
+    return_df=pd.read_excel('data/Mart Ayı Giriş Çıkış.xls',index_col=False)
     return return_df.to_json(orient='table')
     #return send_from_directory(path='modified.xlsx',directory='data', as_attachment=False)
     
